@@ -18,6 +18,9 @@ ARMANI_EMAILS = ['marcello.almeida@armanitransportes.com.br']
 
 JSL_EMAILS = ['rayna.lima@jsl.com.br', 'wellington.siqueira@jsl.com.br']
 
+CC = ['plannersILC@ilclog.com.br',
+      'regiane.zanetti@ilclog.com.br', 'coletas@ilclog.com.br']
+
 VF_EMAILS = [
     'bruno.dias@vfexpress.com.br',
     'operacionalcpq@vfexpress.com.br',
@@ -123,7 +126,7 @@ def ler_dados_excel(caminho_arquivo):
         colunas_desejadas = [
             "STATUS GE", "PEDIDO", "JANELA", "FORNECEDOR",
             "PLANTA", "TIPO", "AGLUTINADOR", "VEICULO AGLUTINADO",
-            "TRANSPORTADOR", "CODIGO COLETA TRANSMISSAO"
+            "TRANSPORTADOR", "CODIGO COLETA TRANSMISSAO", 'MANIFESTO'
         ]
         return df[colunas_desejadas]
     except Exception as e:
@@ -160,6 +163,7 @@ def gerar_tabela_html(df):
 
 
 def enviar_email_por_transportador(df):
+    hoje = datetime.today().strftime('%d/%m')
 
     def extrair_transportador(nome):
         if 'MIRASSOL' in nome:
@@ -198,38 +202,41 @@ def enviar_email_por_transportador(df):
         destinatarios = ""
 
         if "TW" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "ARMANI" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "JSL" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "VF" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "MIRASSOL (LOUVEIRA)" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = MIRASSOL_LOUVERIA_UBERABA
 
         if "MIRASSOL (TUBARAO)" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "MIRASSOL (CATALAO)" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "MIRASSOL (UBERABA)" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
 
         if "MIRASSOL (SJ PINHAIS)" in transportador:
-            destinatarios = 'bruce.lopes@ilclog.com.br'
+            destinatarios = ''
+
+        # Ajusta destinatários e une com cópias
+        todos_destinatarios = list(filter(None, destinatarios)) + CC
 
         try:
             msg = MIMEMultipart()
             msg['From'] = EMAIL_USER
             # Substitua pelo e-mail real do transportador
-            msg['To'] = destinatarios
-            msg['Subject'] = f"Pendencias GE - Teste {transportador}"
+            msg['To'] = ", ".join(todos_destinatarios)
+            msg['Subject'] = f"Pendencias GE {hoje} - Teste Automatização {transportador}"
 
             msg.attach(MIMEText(corpo_email, 'html'))
 
